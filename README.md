@@ -5,6 +5,9 @@ libraries and all necessary build files to build a custom application which
 uses MSP2807 display with touch screen or other one based on ILI9341 driver 
 IC and TSC2046 touchscreen.
 
+![IMG_8820_](https://user-images.githubusercontent.com/47501785/217345382-35092e75-2a11-4d2f-9d79-4ed864db24b8.jpg)
+
+
 # Memory Efficient Screenbuffer
 
 Taking in account the quite scarce RAM of Pico, the SDK implements a memory
@@ -50,7 +53,5 @@ Check if output file ./build/pico-touchsrc-sdk-test.uf2 appears.
 
 5. You now have the screen with text message and the software is waiting for
 stylus operation.
-
-![IMG_8820_](https://user-images.githubusercontent.com/47501785/217344889-986d25be-51da-4691-81b3-9a0e3f77b5a8.jpg)
 
 
