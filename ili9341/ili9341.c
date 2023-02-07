@@ -416,7 +416,7 @@ void TftPutString(screen_control_t *pscr, const char* str,
     assert_(bot_y);
 
     for(int i = 0; str[i]; ++i)
-	{
+    {
         if(pscr->mCursorY >= bot_y)
         {
             TftScrollVerticalZone(pscr, top_y, bot_y);

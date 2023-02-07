@@ -108,7 +108,7 @@ typedef struct
 
 typedef struct
 {
-	ili9341_config_t *mpHWConfig;			// Device hardware config.
+    ili9341_config_t *mpHWConfig;			// Device hardware config.
 
     int16_t mCursorX;						// Cursor-
     int16_t mCursorY;						// position.
@@ -120,7 +120,7 @@ typedef struct
     uint32_t mpPixBuffer[PIX_W32COUNT];     // Black-white 1bpp canvas.
 
     uint8_t mpColorBuffer[TEXT_CHARCOUNT];  // 8x8 block attributes:
-								// Flash|Changed|Pap2|Pap1|Pap0|Ink2|Ink1|Ink0.
+                                // Flash|Changed|Pap2|Pap1|Pap0|Ink2|Ink1|Ink0.
                                 // `Flash' blinking attribute (cursors) [*].
                                 // `Changed` need to send to device flag.
                                 // `Paper` color, `Ink` color [0..7].
@@ -137,7 +137,7 @@ void ILI9341_SetCommand(const ili9341_config_t *pconfig, uint8_t cmd);
 void ILI9341_CommandParam(const ili9341_config_t *pconfig,uint8_t data);
 
 void ILI9341_SetOutWriting(const ili9341_config_t *pconfig,
-						    const int start_col, const int end_col,
+                            const int start_col, const int end_col,
                             const int start_page,const int end_page);
 void ILI9341_WriteData(const ili9341_config_t *pconfig,void *buffer,int bytes);
 

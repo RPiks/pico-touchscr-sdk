@@ -39,8 +39,7 @@ It is included (test.c).
 1. Install Raspberry Pi Pico SDK. Configure environment variables. Test
 whether it is built successfully.
 
-2.
-git clone this repository.
+2. git clone this repository.
 cd pico-touchscr-sdk
 ./build.sh
 Check if output file ./build/pico-touchsrc-sdk-test.uf2 appears.
