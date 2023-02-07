@@ -108,11 +108,11 @@ typedef struct
 
 typedef struct
 {
-    ili9341_config_t *mpHWConfig;			// Device hardware config.
+    ili9341_config_t *mpHWConfig;           // Device hardware config.
 
-    int16_t mCursorX;						// Cursor-
-    int16_t mCursorY;						// position.
-    uint8_t mCursorType;					// Not yet implemented. [*]
+    int16_t mCursorX;                       // Cursor-
+    int16_t mCursorY;                       // position.
+    uint8_t mCursorType;                    // Not yet implemented. [*]
 
     color_t mCanvasPaper;                   // Default- 
     color_t mCanvasInk;                     // canvas colors.
@@ -139,6 +139,7 @@ void ILI9341_CommandParam(const ili9341_config_t *pconfig,uint8_t data);
 void ILI9341_SetOutWriting(const ili9341_config_t *pconfig,
                             const int start_col, const int end_col,
                             const int start_page,const int end_page);
+
 void ILI9341_WriteData(const ili9341_config_t *pconfig,void *buffer,int bytes);
 
 
