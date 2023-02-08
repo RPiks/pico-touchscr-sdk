@@ -521,7 +521,7 @@ void TftScrollVerticalZone(screen_control_t *pscr, int top_y, int bot_y)
 /// @param y Pix's y coord.
 /// @param paper Paper color.
 /// @param ink Ink color.
-void PutPixel(screen_control_t *pscr, int x, int y, color_t paper, color_t ink)
+void TftPutPixel(screen_control_t *pscr, int x, int y, color_t paper, color_t ink)
 {
     assert_(pscr);
     
@@ -533,4 +533,111 @@ void PutPixel(screen_control_t *pscr, int x, int y, color_t paper, color_t ink)
     SET_DATA_BIT(pscr->mpPixBuffer, x + y * PIX_WIDTH);
     
     TftPutColorAttr(pscr, x>>3, y>>3, paper, ink);
+}
+
+/// @brief Puts a line on screen buffer & sets appropriate zones to update.
+/// @param pscr Control structure.
+/// @param x0 Line begin (end) X coord.
+/// @param y0 Line begin (end) Y coord.
+/// @param x1 Line end (begin) X coord.
+/// @param y1 Line end (begin) Y coord.
+void TftPutLine(screen_control_t *pscr, int x0, int y0, int x1, int y1)
+{
+    assert_(pscr);
+
+    if (x0 < 0 || y0 < 0 || x1 < 0 || y1 < 0) 
+    {
+        return;
+    }
+    if (x0 > PIX_WIDTH || y0 > PIX_HEIGHT || x1 > PIX_WIDTH || y1 > PIX_HEIGHT)
+    {
+        return;
+    }
+
+    const int sx = x0 < x1 ? 1 : -1; 
+    const int sy = y0 < y1 ? 1 : -1;
+
+    int dx = x1 > x0 ? x1 - x0 : x0 - x1,
+        dy = y1 > y0 ? y1 - y0 : y0 - y1,
+        err = (dx > dy ? dx : -dy) / 2,
+        e2, 
+        cnt = 1000L;
+
+    for (; cnt; --cnt) 
+    {
+        SET_DATA_BIT(pscr->mpPixBuffer, x0 + y0 * PIX_WIDTH);
+        pscr->mpColorBuffer[(x0 >> 3) + (y0 >> 3) * TEXT_WIDTH] |= 1 << 6;
+
+        if (x0 == x1 && y0 == y1) 
+        {
+            break;
+        }
+
+        e2 = err;
+
+        if (e2 > -dx) 
+        {
+            err -= dy;
+            x0 += sx;
+        }
+
+        if (e2 < dy) 
+        {
+            err += dx;
+            y0 += sy;
+        }
+    }
+
+}
+
+/// @brief Puts a short text label on the screen buffer using the graphical
+/// @brief coordinate system. This is useful in widgets and menus.
+/// @param pscr Control structure.
+/// @param pstr Null terminated string.
+/// @param x_pix Top-left point of the first symbol X coord.
+/// @param y_pix Top-left point of the first symbol Y coord.
+void TftPutTextLabel(screen_control_t *pscr, char *pstr, int x_pix, int y_pix,
+                     bool over)
+{
+    assert_(pscr);
+    assert_(pstr);
+
+    if(x_pix > PIX_WIDTH - 8 || y_pix > PIX_HEIGHT - 8)
+    {
+        return;
+    }
+
+    int max_len = (PIX_WIDTH - x_pix) >> 3;
+    for(int s = 0; pstr[s] && max_len; ++s, --max_len)
+    {
+        char chr = pstr[s];
+        if(chr > 0x7E || chr < 0x20)
+        {
+            return; // chr > '~'
+        }
+
+        chr -= 0x20;
+
+        const uint8_t *pfchar = kFONT_ + 2 + 8 * (int)chr;
+        for(int j = 0; j < 8; ++j)
+        {
+            const int bit_line = (y_pix + j) * PIX_WIDTH + x_pix;
+            const int blk_line = TEXT_WIDTH * ((y_pix + j) >> 3);
+            for(int i = 0; i < 8; ++i)
+            {
+                const bool bit_val = (pfchar[j] >> (8-i)) & 1;
+                if(bit_val)
+                {
+                    SET_DATA_BIT(pscr->mpPixBuffer, bit_line + i);
+                }
+                else if(over) 
+                {
+                    CLR_DATA_BIT(pscr->mpPixBuffer, bit_line + i);
+                }
+
+                pscr->mpColorBuffer[((x_pix + i) >> 3) + blk_line] |= (1 << 6);
+            }
+        }
+        x_pix += 8;
+    }
 }

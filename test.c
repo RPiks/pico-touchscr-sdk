@@ -4,6 +4,12 @@
 #include "ili9341/ili9341.h"
 #include "touch/msp2807_touch.h"
 
+// TODO: PSE uncomment one mode only.
+
+#define MODE_TEST_TOUCH_DRAWING
+//#define MODE_TEST_RANDOM_LINES
+//#define MODE_TEST_RANDOM_LABELS
+
 void PRN32(uint32_t *val)
 { 
     *val ^= *val << 13;
@@ -11,25 +17,40 @@ void PRN32(uint32_t *val)
     *val ^= *val << 5;
 }
 
-void TestNoisyScreen(const screen_control_t *p_screen)
+void TestRandomLabels(screen_control_t *p_screen)
 {
-    ILI9341_SetOutWriting(p_screen->mpHWConfig,0,PIX_WIDTH-1, 0, PIX_HEIGHT-1);
+    assert_(p_screen);
 
-    static uint16_t sBufLine[PIX_WIDTH];
-    static uint32_t u32_seed = 0xdeadbeef;
-    for(int j = 0; j < PIX_HEIGHT; ++j)
-    {
-        for(int i = 0; i < PIX_WIDTH; ++i)
-        {
-            sBufLine[i] = u32_seed & 0xFFFF;
-            PRN32(&u32_seed);
-        }
+    static uint32_t rnd_seed = 0xa5efddbd;
 
-        ILI9341_WriteData(p_screen->mpHWConfig, sBufLine, 
-                            PIX_WIDTH * sizeof(uint16_t));
-    }
+    PRN32(&rnd_seed);
+    const int x = rnd_seed % 240;
+    PRN32(&rnd_seed);
+    const int y = rnd_seed % 312;
 
-    return;
+    TftPutTextLabel(p_screen, "Pico RULEZZ", x, y, false);
+    
+    TftFullScreenSelectiveWrite(p_screen, 10000);
+}
+
+void TestRandomLines(screen_control_t *p_screen)
+{
+    assert_(p_screen);
+
+    static uint32_t rnd_seed = 0xa5efddbd;
+
+    PRN32(&rnd_seed);
+    const int x0 = rnd_seed % 240;
+    PRN32(&rnd_seed);
+    const int x1 = rnd_seed % 240;
+    PRN32(&rnd_seed);
+    const int y0 = rnd_seed % 320;
+    PRN32(&rnd_seed);
+    const int y1 = rnd_seed % 320;
+
+    TftPutLine(p_screen, x0, y0, x1, y1);
+    
+    TftFullScreenSelectiveWrite(p_screen, 10000);
 }
 
 int main() 
@@ -73,15 +94,17 @@ int main()
     (pin 17)  T_CS       Device chip select (active low).
     (pin 16)  T_DO       SPI MISO signal.
     */
+
     ili9341_config_t ili9341_hw_config;
     sScreen.mpHWConfig = &ili9341_hw_config;
     ILI9341_Init(sScreen.mpHWConfig, spi0, 90 * MHz, 4, 5, 6, 7, 8, 9);
 
     sScreen.mCanvasPaper = kBlack;
     sScreen.mCanvasInk = kMagenta;
-    TftClearScreenBuffer(&sScreen, kBlack, kYellow);
+    TftClearScreenBuffer(&sScreen, kBlack, kRed);
     TftFullScreenWrite(&sScreen);
 
+#ifdef MODE_TEST_TOUCH_DRAWING
     touch_hwconfig_t touch_hwc;
     TouchInitHW(&touch_hwc, spi1, 1 * MHz, 12, 13, 10, 11, 15);
     
@@ -116,6 +139,7 @@ int main()
     TftPrintf(&sScreen, 0, 8, 0, 3, "Please draw using the pen!!!");
 
     TftFullScreenSelectiveWrite(&sScreen, 10000);
+#endif
 
     int led_state = 0;
     for(;;)
@@ -123,6 +147,17 @@ int main()
         gpio_put(PICO_DEFAULT_LED_PIN, (led_state & 1));
         ++led_state;
 
+#ifdef MODE_TEST_RANDOM_LINES
+        TestRandomLines(&sScreen);
+        continue;
+#endif
+#ifdef MODE_TEST_RANDOM_LABELS
+        TestRandomLabels(&sScreen);
+        //sleep_ms(250);
+        continue;
+#endif
+
+#ifdef MODE_TEST_TOUCH_DRAWING
         CheckTouch(&touch_config);
         if(touch_config.mIsProcessed)
         {
@@ -134,7 +169,7 @@ int main()
 
             TouchTransformCoords(&cmat, &x, &y);
 
-            PutPixel(&sScreen, x, y, kBlack, kYellow);
+            TftPutPixel(&sScreen, x, y, kBlack, kYellow);
             
             if(0 == led_state % 128)
                 TftPrintf(&sScreen, 0, 8, ~(touch_tick&7), touch_tick&7, "%u %d %d %d %d\n", touch_tick,
@@ -144,5 +179,6 @@ int main()
 
             touch_config.mIsProcessed = false;
         }
+#endif
     }
 }
