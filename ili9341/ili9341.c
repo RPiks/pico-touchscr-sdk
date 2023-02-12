@@ -596,8 +596,8 @@ void TftPutLine(screen_control_t *pscr, int x0, int y0, int x1, int y1)
 /// @param pstr Null terminated string.
 /// @param x_pix Top-left point of the first symbol X coord.
 /// @param y_pix Top-left point of the first symbol Y coord.
-void TftPutTextLabel(screen_control_t *pscr, char *pstr, int x_pix, int y_pix,
-                     bool over)
+void TftPutTextLabel(screen_control_t *pscr, const char *pstr, int x_pix, 
+                    int y_pix, bool over)
 {
     assert_(pscr);
     assert_(pstr);
