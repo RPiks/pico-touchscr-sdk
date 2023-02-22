@@ -641,3 +641,51 @@ void TftPutTextLabel(screen_control_t *pscr, const char *pstr, int x_pix,
         x_pix += 8;
     }
 }
+
+/// @brief Clears the rectangle of pixel buffer.
+/// @param pscr Control structure.
+/// @param xs Top-
+/// @param ys left, in 8x8 blocks.
+/// @param ws Width.
+/// @param hs Height of rect.
+void TftClearRect8(screen_control_t *pscr, int xs, int ys, int ws, int hs)
+{
+    assert_(pscr);
+
+    uint8_t *ptl = (uint8_t *)pscr->mpPixBuffer;
+    const int x_e = (xs + ws) << 3;
+    const int y_e = (ys + hs) << 3;
+    const int stride = PIX_WIDTH / 8;
+    xs <<= 3;
+    ys <<= 3;
+    for(int j = ys; j < y_e; ++j)
+    {
+        const int line = j * stride;
+        for(int i = xs; i < x_e; ++i)
+        {
+            ptl[i + line] = 0x00;
+        }
+    }
+
+    TftSetRectForUpdate(pscr, xs, ys, ws, hs);
+}
+
+/// @brief Sets the rectangle for update.
+/// @param pscr Control structure.
+/// @param xs Top-
+/// @param ys left, in 8x8 blocks.
+/// @param ws Width.
+/// @param hs Height of rect.
+void TftSetRectForUpdate(screen_control_t *pscr, int xs, int ys, int ws,int hs)
+{
+    assert_(pscr);
+
+    for(int j = ys; j < ys+hs; ++j)
+    {
+        const int line = j * TEXT_WIDTH;
+        for(int i = xs; i < xs+ws; ++i)
+        {
+            pscr->mpColorBuffer[i + line] |= 1 << 6;
+        }
+    }
+}
