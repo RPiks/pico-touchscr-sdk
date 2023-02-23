@@ -160,14 +160,12 @@ void TftPrintf(screen_control_t *pscr, int top_y, int bot_y, int paper,
 
 void TftScrollVerticalZone(screen_control_t *pscr, int top_y, int bot_y);
 
-void TftSetRectForUpdate(screen_control_t *pscr, int xs, int ys, int ws, int hs);
-
 /* Screen buffer operations - graphics. */
 void TftPutPixel(screen_control_t *pscr, int x, int y, color_t paper,color_t ink);
 void TftPutLine(screen_control_t *pscr, int x0, int y0, int x1, int y1);
 void TftPutTextLabel(screen_control_t *pscr, const char *pstr, int x_pix, 
                     int y_pix, bool over);
-void TftClearRect8(screen_control_t *pscr, int xs, int ys, int ws, int hs);
+void TftClearRect8(screen_control_t *pscr, int x, int y);
 
 /* Hardware I/O operations. */
 void TftFullScreenWrite(screen_control_t *pscr);

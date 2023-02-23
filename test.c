@@ -6,6 +6,7 @@
 
 // TODO: PSE uncomment one mode only.
 
+//#define MODE_TEST_TEXTBOX_DRAWING
 #define MODE_TEST_TOUCH_DRAWING
 //#define MODE_TEST_RANDOM_LINES
 //#define MODE_TEST_RANDOM_LABELS
@@ -15,6 +16,27 @@ void PRN32(uint32_t *val)
     *val ^= *val << 13;
     *val ^= *val >> 17;
     *val ^= *val << 5;
+}
+
+void TestBoxDraw(screen_control_t *p_screen)
+{
+    assert_(p_screen);
+
+    static int x = 0, y = 0;
+    if(!x && !y)
+    {
+        memset(p_screen->mpPixBuffer, 0xFF, sizeof(p_screen->mpPixBuffer));
+        TftFullScreenWrite(p_screen);
+    }
+    TftClearRect8(p_screen, x, y);
+
+    if(++x >= TEXT_WIDTH)
+    {
+        x = 0;
+        if(++y >= TEXT_HEIGHT)
+            y = 0;
+    }
+    TftFullScreenSelectiveWrite(p_screen, 16);
 }
 
 void TestRandomLabels(screen_control_t *p_screen)
@@ -147,6 +169,11 @@ int main()
         gpio_put(PICO_DEFAULT_LED_PIN, (led_state & 1));
         ++led_state;
 
+#ifdef MODE_TEST_TEXTBOX_DRAWING
+        TestBoxDraw(&sScreen);
+        sleep_ms(100);
+        continue;
+#endif
 #ifdef MODE_TEST_RANDOM_LINES
         TestRandomLines(&sScreen);
         continue;
