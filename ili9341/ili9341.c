@@ -259,7 +259,7 @@ void TftFullScreenWrite(screen_control_t *pscr)
 
     ILI9341_SetOutWriting(pscr->mpHWConfig, 0, PIX_WIDTH-1, 0, PIX_HEIGHT-1);
 
-    static uint16_t sBufLine[PIX_WIDTH];
+    uint16_t sBufLine[PIX_WIDTH];
     for(int j = 0; j < PIX_HEIGHT; ++j)
     {
         const int line_of_symbol = (j >> 3) * TEXT_WIDTH;
